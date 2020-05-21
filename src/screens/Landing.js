@@ -2,8 +2,10 @@ import React, { useState, useRef, useEffect } from "react";
 import styled from "styled-components";
 import bg from "../assets/bg.svg";
 import BGsmall from "../assets/BGsmall.svg";
-
 import CTAimage from "../assets/CTAimage.png";
+import { db } from "../firebaseConfig.js";
+
+import { withRouter } from "react-router-dom";
 
 const colors = {
   bg: "#ffffff",
@@ -123,7 +125,7 @@ const Styledlandingpage = styled.div`
     box-sizing: border-box;
     border-radius: 25px 0px 0px 25px;
     font-size: 18px;
-    padding: 10px;
+    padding: 20px;
     outline: none;
   }
 
@@ -169,9 +171,18 @@ class Landing extends React.Component {
     console.log(this.emailInput);
   }
 
-  // handleSubmit = (e) => {
-  //   console.log(email);
-  // };
+  handleSubmit = (e) => {
+    e.preventDefault();
+    console.log(this.emailInput.current.value);
+    db.collection("betaList")
+      .add({ email: this.emailInput.current.value })
+      .then(() => {
+        this.props.history.push("/thanks");
+      })
+      .catch(function (error) {
+        console.error("Error writing document: ", error);
+      });
+  };
 
   render() {
     return (
@@ -190,7 +201,10 @@ class Landing extends React.Component {
                     We will send warm Introductions straight to your Inbox so
                     you are always in on the best kept secrets in tech.
                   </h3>
-                  <form className="emailForm">
+                  <form
+                    className="emailForm"
+                    onSubmit={(e) => this.handleSubmit(e)}
+                  >
                     <input
                       ref={this.emailInput}
                       className="emailInput"
@@ -201,10 +215,7 @@ class Landing extends React.Component {
                       required
                       autoComplete="email"
                     />
-                    <button
-                      className="emailSubmit"
-                      onClick={() => console.log(this.emailInput.current.value)}
-                    >
+                    <button type="submit" className="emailSubmit">
                       Send Me Intros
                     </button>
                   </form>
@@ -237,4 +248,4 @@ class Landing extends React.Component {
   }
 }
 
-export default Landing;
+export default withRouter(Landing);
